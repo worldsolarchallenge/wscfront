@@ -37,7 +37,7 @@ flask_googlemaps.GoogleMaps(app)
 # for details of the flask googlemaps extension.
 
 
-@app.route("/map.html")
+@app.route("/")
 def positions():
     query_api = client.query_api()
 
