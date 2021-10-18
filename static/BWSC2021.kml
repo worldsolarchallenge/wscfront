@@ -3,7 +3,7 @@
 <Document>
   <NetworkLink>
     <Link>
-      <href>https://peterpudney.bitbucket.io/BWSC2021/cars.kml</href>
+      <href>http://telemetry.worldsolarchallenge.org/wscfront/sample/cars.kml</href>
       <refreshMode>onInterval</refreshMode>
       <refreshInterval>60</refreshInterval>
     </Link>
