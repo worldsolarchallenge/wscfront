@@ -19,8 +19,8 @@ QUERY_TIME = os.environ.get("QUERY_TIME", "-2d")
 
 
 if not INFLUX_TOKEN:
-    raise ValueError("No InfluxDB token set using INFLUX_TOKEN " 
-                    "environment variable")
+    raise ValueError("No InfluxDB token set using INFLUX_TOKEN "
+                        "environment variable")
 
 client = InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG, 
                         debug=True)
@@ -56,10 +56,10 @@ def positions():
                               columnKey: ["_field"],
                               valueColumn: "_value")
             |> map(fn: (r) => ({{r with consumption:
-                              (r.solarEnergy +  
+                              (r.solarEnergy +
                                 r.batteryEnergy)/r.distance}}))
             |> group()
-            |> keep(columns: ["shortname", "distance", 
+            |> keep(columns: ["shortname", "distance",
                     "latitude", "longitude", "consumption"])"""
 
     stream = query_api.query_stream(query)
