@@ -19,6 +19,10 @@ COPY ./Front.cabal /app/Front.cabal
 # Build dependencies independently so they get cached separately. 
 RUN cabal build --only-dependencies -j4
 
+# Add python dependencies. 
+COPY ./requirements.txt /app/requirements.txt
+RUN apt-get install python3 python3-pip  -y && pip3 install -r requirements.txt
+
 # Add and Install Application Code
 COPY . /app
 RUN cabal install
@@ -26,8 +30,9 @@ RUN cabal install
 # Make a directory to hold the build results. 
 RUN mkdir -p /app/results
 
-CMD ["Front"]
+#CMD ["Front"]
 
-#RUN pip install -r requirements.txt
 #ENTRYPOINT ["python"]
-#CMD ["app.py"]
+CMD ["python3", "app.py"]
+
+#CMD gunicorn --worker-class gevent --workers 1 --bind 0.0.0.0:5000 app:app --max-requests 10000 --timeout 5 --keep-alive 5 --log-level info

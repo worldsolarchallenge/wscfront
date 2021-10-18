@@ -1,71 +1,63 @@
 import os
 
 import flask
-import flask_googlemaps
+import flask_caching
+from flask.helpers import send_file
 
-from influxdb_client import InfluxDBClient
+import subprocess
 
 app = flask.Flask(__name__)
 
-INFLUX_URL = os.environ.get(
-    "INFLUX_URL", "https://eastus-1.azure.cloud2.influxdata.com"
+config = {
+    "DEBUG": True,          # some Flask specific configs
+    "CACHE_TYPE": "SimpleCache",  # Flask-Caching related configs
+    "CACHE_DEFAULT_TIMEOUT": 300
+}
+app.config.from_mapping(config)
+cache = flask_caching.Cache(app)
+
+INFLUX_HOST = os.environ.get(
+    "INFLUX_HOST", "https://eastus-1.azure.cloud2.influxdata.com"
 )
 INFLUX_ORG = os.environ.get("INFLUX_ORG", "BWSC")
 INFLUX_TOKEN = os.environ.get("INFLUX_TOKEN", None)
 
-INFLUX_BUCKET = os.environ.get("INFLUX_BUCKET", "sample")
-
-QUERY_TIME = os.environ.get("QUERY_TIME", "-2d")
-
+#INFLUX_BUCKET = os.environ.get("INFLUX_BUCKET", "sample")
 
 if not INFLUX_TOKEN:
     raise ValueError("No InfluxDB token set using INFLUX_TOKEN "
                      "environment variable")
 
-client = InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG,
-                        debug=True)
+if not INFLUX_HOST:
+    raise ValueError("No InfluxDB host set using INFLUX_HOST "
+                     "environment variable")
 
-
-# SEt up Google Maps
-# Get the Gogole Maps API key
-app.config["GOOGLEMAPS_KEY"] = os.environ.get("GOOGLEMAPS_KEY", None)
-print(f"Got GoogleMaps Key: {os.environ.get('GOOGLEMAPS_KEY', None)}")
-
-flask_googlemaps.GoogleMaps(app)
-
-# See https://github.com/flask-extensions/Flask-GoogleMaps
-# for details of the flask googlemaps extension.
-
+if not INFLUX_ORG:
+    raise ValueError("No InfluxDB org set using INFLUX_ORG "
+                     "environment variable")
 
 @app.route("/")
-def positions():
-    query_api = client.query_api()
+def root():
+    return app.send_static_file('front.html')
 
-    query = f"""
-        from(bucket: "{INFLUX_BUCKET}")
-            |> range(start: {QUERY_TIME})
-            |> filter(fn: (r) => r._measurement == "telemetry"
-                                 and (r._field == "latitude"
-                                 or r._field == "longitude"
-                                 or r._field == "distance"
-                                 or r._field == "solarEnergy"
-                                 or r._field == "batteryEnergy"))
-            |> last()
-            |> keep(columns: ["shortname", "_field", "_value"])
-            |> pivot(rowKey: ["shortname"],
-                              columnKey: ["_field"],
-                              valueColumn: "_value")
-            |> map(fn: (r) => ({{r with consumption:
-                              (r.solarEnergy +
-                                r.batteryEnergy)/r.distance}}))
-            |> group()
-            |> keep(columns: ["shortname", "distance",
-                    "latitude", "longitude", "consumption"])"""
+@cache.cached(timeout=60, key_prefix="run_front")
+def run_front():
+    # Run "Front" here. 
+    return subprocess.call(['Front'])
 
-    stream = query_api.query_stream(query)
+@app.route('/front.svg')
+@app.route('/front_graph.svg')
+@app.route('/cars.kml')
+def myfiles():
+    run_front()
 
-    return flask.render_template("positions_map.html", rows=list(stream))
+    print(f"Sending {flask.request.path}")
+    if flask.request.path.endswith(".svg"):
+        return flask.send_file(f"results/{flask.request.path}", mimetype='image/svg+xml')
+    elif flask.request.path.endswith(".kml"):
+        return flask.send_file(f"results/{flask.request.path}", mimetype="application/vnd.google-earth.kml+xml")
 
+    raise ValueError("Un-routed file detected.")
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0")

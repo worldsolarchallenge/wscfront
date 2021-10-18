@@ -26,7 +26,10 @@ bash: build
 
 run: build
 	mkdir -p results/
-	docker run -p 5000:5000 $(foreach e,$(ENV_VARS),-e $(e)) -v $(PWD)/results:/app/results $(DOCKER_NAME)
+	docker run --rm -p 5000:5000 $(foreach e,$(ENV_VARS),-e $(e)) -v $(PWD)/results:/app/results $(DOCKER_NAME) python3 app.py
+
+prodrun: build
+	docker run --rm -p 5000:5000 $(foreach e,$(ENV_VARS),-e $(e)) $(DOCKER_NAME)
 
 publish: build
 	docker image tag $(DOCKER_NAME):$(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_NAME):$(DOCKER_TAG)
