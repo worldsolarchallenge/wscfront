@@ -20,9 +20,9 @@ QUERY_TIME = os.environ.get("QUERY_TIME", "-2d")
 
 if not INFLUX_TOKEN:
     raise ValueError("No InfluxDB token set using INFLUX_TOKEN "
-                        "environment variable")
+                     "environment variable")
 
-client = InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG, 
+client = InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG,
                         debug=True)
 
 
