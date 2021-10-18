@@ -40,9 +40,10 @@ if not INFLUX_ORG:
 def root():
     return app.send_static_file('front.html')
 
+
 @app.route("/BWSC2021.kml")
 def base_kml():
-    return flask.send_file(f"static/BWSC2021.kml",
+    return flask.send_file("static/BWSC2021.kml",
         mimetype="application/vnd.google-earth.kml+xml") # noqa
 
 
