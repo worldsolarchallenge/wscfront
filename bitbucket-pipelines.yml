@@ -26,8 +26,11 @@ pipelines:
       - step:
           name: Build and push
           script:
+            - export IMAGE_NAME=dcasnowdon/wscfront:$BITBUCKET_BRANCH-$BITBUCKET_COMMIT
             - docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_PASSWORD
-            - docker build -t dcasnowdon/wscearth:latest .
-            - docker push dcasnowdon/wscearth:latest
+            - docker build -t $IMAGE_NAME .
+            - docker push $IMAGE_NAME
+            - docker tag $IMAGE_NAME dcasnowdon/wscfront:latest
+            - docker push dcasnowdon/wscfront:latest
           services:
             - docker
