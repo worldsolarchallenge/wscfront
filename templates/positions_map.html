@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+  <head>
+    <style>
+      #map {
+        height: 100%;
+      }
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+
+    <script>
+      let map;
+
+      function initMap() {
+        map = new google.maps.Map(document.getElementById("map"), {
+          center: { lat: {{rows[0]["latitude"]}}, lng: {{rows[0]["longitude"]}} },
+          zoom: 8,
+        });
+
+        // Create an info window to share between markers.
+        const infoWindow = new google.maps.InfoWindow();
+
+        const markers = [];
+        {% for row in rows %}
+        markers.push(new google.maps.Marker({
+          position: { lat: {{ row["latitude"] }}, lng: {{ row["longitude"] }} },
+          map: map, 
+          title: '{{row["shortname"]}}'
+        }));
+        {% endfor %}
+
+        markers.map((marker) => {
+          // Add a click listener for each marker, and set up the info window.
+          marker.addListener("click", () => {
+            infoWindow.close();
+            infoWindow.setContent(marker.getTitle());
+            infoWindow.open(marker.getMap(), marker);
+          } ) 
+        })
+
+      }
+    </script>
+  </head>
+
+  <body>
+    <div id="map"></div>
+
+    <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD4cxmf6zr3SMovEYgZZe9eoEQCglqz3L8&callback=initMap&v=weekly"
+      async
+    ></script>
+  </body>
+</html>
