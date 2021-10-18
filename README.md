@@ -1,10 +1,10 @@
-# WSC Distances
+# WSC Earth
 
 This project is in aid of the [Bridgestone World Solar Challenge](https://www.worldsolarchallenge.org/).
 
-This is a demonstration of a [python3 project](https://www.python.org/) which reads from an [Influx v2 database](https://www.influxdata.com/) using the [Influx Python integration](https://www.influxdata.com/blog/getting-started-with-python-and-influxdb-v2-0/) and [Flux query](https://docs.influxdata.com/influxdb/cloud/query-data/get-started/), and generates a web page using [Flask](https://flask.palletsprojects.com/en/2.0.x/).
+This is a demonstration of a [python3 project](https://www.python.org/) which reads from an [Influx v2 database](https://www.influxdata.com/) using the [Influx Python integration](https://www.influxdata.com/blog/getting-started-with-python-and-influxdb-v2-0/) and [Flux query](https://docs.influxdata.com/influxdb/cloud/query-data/get-started/), and generates a web page using [Flask](https://flask.palletsprojects.com/en/2.0.x/). The web page contains a google map, inserted using the Google Maps API. 
 
-This is used to show sample data here: [http://telemetry.worldsolarchallenge.org/wscdistances/sample/](http://telemetry.worldsolarchallenge.org/wscdistances/sample/)
+This is used to show sample data here: [http://telemetry.worldsolarchallenge.org/wscearth/sample/](http://telemetry.worldsolarchallenge.org/wscearth/sample/)
 
 ## Build and Run
 
@@ -13,7 +13,7 @@ To build and run locally, you can use docker and the Makefile. You'll need an In
 Once you have docker set up, on a Mac, or Linux:
 
 ```
-INFLUX_TOKEN=your_token_here make
+INFLUX_TOKEN=your_influx_token_here GOOGLEMAPS_KEY=your_google_api_key_here make run
 ```
 
 and then navigate to [http://localhost:5000](http://localhost:5000).

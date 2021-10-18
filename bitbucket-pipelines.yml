@@ -22,3 +22,11 @@ pipelines:
             # Enforce style consistency across Python projects https://flake8.pycqa.org/en/latest/manpage.html
             - pip install flake8
             - flake8 . --extend-exclude=dist,build --show-source --statistics
+
+      - step:
+        script:
+          - docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_PASSWORD
+          - docker build -t dcasnowdon/wscearth:latest .
+          - docker push dcasnowdon/wscearth:latest
+        services:
+          - docker
