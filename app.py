@@ -19,22 +19,21 @@ QUERY_TIME = os.environ.get("QUERY_TIME", "-2d")
 
 
 if not INFLUX_TOKEN:
-    raise ValueError("No InfluxDB token set using INFLUX_TOKEN "
-                     "environment variable")
+    raise ValueError("No InfluxDB token set using INFLUX_TOKEN " "environment variable")
 
-client = InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN,
-                        org=INFLUX_ORG, debug=True)
+client = InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG, debug=True)
 
 
 # SEt up Google Maps
 # Get the Gogole Maps API key
-app.config['GOOGLEMAPS_KEY'] = os.environ.get("GOOGLEMAPS_KEY", None)
+app.config["GOOGLEMAPS_KEY"] = os.environ.get("GOOGLEMAPS_KEY", None)
 print(f"Got GoogleMaps Key: {os.environ.get('GOOGLEMAPS_KEY', None)}")
 
 flask_googlemaps.GoogleMaps(app)
 
 # See https://github.com/flask-extensions/Flask-GoogleMaps
-# for details of the flask googlemaps extension. 
+# for details of the flask googlemaps extension.
+
 
 @app.route("/map.html")
 def positions():
