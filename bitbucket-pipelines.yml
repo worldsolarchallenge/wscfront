@@ -24,9 +24,10 @@ pipelines:
             - flake8 . --extend-exclude=dist,build --show-source --statistics
 
       - step:
-        script:
-          - docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_PASSWORD
-          - docker build -t dcasnowdon/wscearth:latest .
-          - docker push dcasnowdon/wscearth:latest
-        services:
-          - docker
+          name: Build and push
+          script:
+            - docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_PASSWORD
+            - docker build -t dcasnowdon/wscearth:latest .
+            - docker push dcasnowdon/wscearth:latest
+          services:
+            - docker
