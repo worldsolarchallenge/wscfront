@@ -32,7 +32,7 @@ Car data is read from the Influx Cloud database using the influx CLI.
 
 getCars :: IO [Car]
 getCars
-  = readCreateProcess (shell "influx query -f latest.flux --raw") ""
+  = readCreateProcess (shell "influx query -f latest-$INFLUX_BUCKET.flux --raw") ""
       <&> map (readCar . filter ('\r' /=)) . init . drop 4 . lines
 
 
