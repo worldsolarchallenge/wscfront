@@ -3,7 +3,7 @@
 <Document>
   <NetworkLink>
     <Link>
-      <href>http://telemetry.worldsolarchallenge.org/wscfront/sample/cars.kml</href>
+      <href>http://telemetry.worldsolarchallenge.org/wscfront/{{bucket}}/cars.kml</href>
       <refreshMode>onInterval</refreshMode>
       <refreshInterval>60</refreshInterval>
     </Link>
