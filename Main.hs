@@ -12,6 +12,7 @@ import Text.XML.Light
 type Distance    = Double 
 type Longitude   = Double
 type Latitude    = Double
+type Speed       = Double
 type Consumption = Double
 
 data Car
@@ -20,6 +21,7 @@ data Car
       distance    :: Distance,
       longitude   :: Longitude,
       latitude    :: Latitude,
+      speed       :: Speed,
       consumption :: Consumption }
     deriving Show
 
@@ -40,19 +42,19 @@ getCars
 
 Columns are comma separated. 
 
-  ,result,table,consumption,distance,shortname
+  ,result,table,consumption,distance,drivingSpeed,shortname
 
 -}
 
 readCar :: String -> Car
 readCar s
-  = Car name (read sx) 0 0 (read sc)
+  = Car name (read sx) 0 0 (read sv) (read sc)
   where
-    [sc, sx, name] = take 3 . drop 3 . splitOn "," $ s
+    [sc, sx, sv, name] = take 4 . drop 3 . splitOn "," $ s
 
 showCar :: Car -> String
-showCar (Car name x long lat c)
-  = printf "%s\t%0.1f\t%0.6f\t%0.6f\t%0.1f" name (x/1000) long lat c
+showCar (Car name x long lat v c)
+  = printf "%s\t%0.1f\t%0.6f\t%0.6f\t%0.1f\t%0.1f" name (x/1000) long lat (3.6*v) c
 
 
 {- Pareto front -}
@@ -61,8 +63,8 @@ dominates :: Car -> Car -> Bool
 c1 `dominates` c2
   = and (zipWith (>=) v1s v2s) && or (zipWith (>) v1s v2s)
     where
-    v1s = [distance c1, -consumption c1]
-    v2s = [distance c2, -consumption c2]
+    v1s = [speed c1, -consumption c1]
+    v2s = [speed c2, -consumption c2]
 
 showDominationLinks :: [Car] -> String
 showDominationLinks cars
@@ -85,7 +87,7 @@ createDominationGraph cars
           | c1 <- cars, c2 <- cars, c1 `dominates` c2],
         "}"]
       procHandle <- runCommand "dot results/front_graph.dot -Tsvg -o results/front_graph.svg"
-      waitForProcess(procHandle)
+      waitForProcess procHandle
       return ()
 
 {- 
@@ -144,15 +146,15 @@ routeCoord (Waypoint x0 long0 lat0 alt0 : Waypoint x1 long1 lat1 alt1 : wps) x
 
 
 addLongLat :: [Waypoint] -> Car -> Car
-addLongLat wps (Car name x _ _ c)
-  = Car name x long lat c
+addLongLat wps (Car name x _ _ v c)
+  = Car name x long lat v c
   where
     (long, lat) = routeCoord wps (3020000 - x)
   
 
 createMap :: [Car] -> IO ()
 createMap cars
-  = writeFile "results/cars.kml" 
+  = writeFile "cars.kml" 
       . ppTopElement 
       $ unode "kml" ([Attr (unqual "xmlnls") "http://www.opengis.net/kml/2.2"], [
           unode "Folder" (
@@ -173,7 +175,8 @@ geCar :: Car -> Element
 geCar car
   = unode "Placemark" [
       unode "name" (name car),
-      unode "description" (printf "Distance: %0.1f km. Consumption: %0.1f J/m." (distance car/1000) (consumption car) :: String),
+      unode "description" (printf "%0.1f&nbsp;km, %0.1f&nbsp;km/h, %0.1f&nbsp;J/m." 
+                             (distance car/1000) (3.6*speed car) (consumption car) :: String),
       unode "visibility" ("1" :: String),
       unode "open" ("1" :: String),
       unode "styleUrl" ("#car" :: String),
@@ -192,7 +195,7 @@ main
       cars <- map (addLongLat wps) <$> getCars
       writeFile "results/front.tsv" . unlines . map showCar $ cars
       processHandle <- runCommand "gnuplot front.plt"
-      waitForProcess(processHandle)
+      waitForProcess processHandle
       createDominationGraph cars
       putStrLn . unlines . map showScore . carScores $ cars
       createMap . map (addLongLat wps) $ cars
