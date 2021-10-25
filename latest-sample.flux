@@ -1,12 +1,17 @@
 from(bucket: "sample")
-  |> range(start: -2d)
+  |> range(start: 2021-10-26T09:00:00+10:30)
   |> filter(fn: (r) => r._measurement == "telemetry"
                          and (r._field == "distance" 
                               or r._field == "solarEnergy" 
                               or r._field == "batteryEnergy"))
-  |> last()
-  |> keep(columns: ["shortname", "_field", "_value"])
-  |> pivot(rowKey: ["shortname"], columnKey: ["_field"], valueColumn: "_value")
+  |> drop(columns: ["_measurement", "_start", "_stop", "car", "team", "class", "event"])
+  |> pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
+  |> elapsed()
+  |> duplicate(column: "distance", as: "dx")
+  |> difference(columns: ["dx"])
+  |> map(fn: (r) => ({r with drivingElapsed: if r.dx > 3*r.elapsed then r.elapsed else 0}))
+  |> cumulativeSum(columns: ["drivingElapsed"])
+  |> last(column: "shortname")
   |> map(fn: (r) => ({r with consumption: (r.solarEnergy +  r.batteryEnergy)/r.distance}))
-  |> group()
-  |> keep(columns: ["shortname", "distance", "consumption"])
+  |> map(fn: (r) => ({r with drivingSpeed: r.distance/float(v: r.drivingElapsed)}))
+  |> keep(columns: ["shortname", "distance", "drivingSpeed", "consumption"])
