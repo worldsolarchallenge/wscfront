@@ -154,7 +154,7 @@ addLongLat wps (Car name x _ _ v c)
 
 createMap :: [Car] -> IO ()
 createMap cars
-  = writeFile "cars.kml" 
+  = writeFile "results/cars.kml" 
       . ppTopElement 
       $ unode "kml" ([Attr (unqual "xmlnls") "http://www.opengis.net/kml/2.2"], [
           unode "Folder" (
