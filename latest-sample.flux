@@ -1,5 +1,5 @@
 from(bucket: "sample")
-  |> range(start: 2021-10-26T09:00:00+10:30)
+  |> range(start: 2021-10-25T09:00:00+10:30)
   |> filter(fn: (r) => r._measurement == "telemetry"
                          and (r._field == "distance" 
                               or r._field == "solarEnergy" 
