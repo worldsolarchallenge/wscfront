@@ -48,7 +48,7 @@ def base_kml():
         mimetype="application/vnd.google-earth.kml+xml") # noqa
 
 
-@cache.cached(timeout=60, key_prefix="run_front")
+@cache.cached(timeout=10, key_prefix="run_front")
 def run_front():
     return subprocess.call(['Front'])
 
