@@ -20,8 +20,7 @@ INFLUX_HOST = os.environ.get(
 )
 INFLUX_ORG = os.environ.get("INFLUX_ORG", "BWSC")
 INFLUX_TOKEN = os.environ.get("INFLUX_TOKEN", None)
-
-# INFLUX_BUCKET = os.environ.get("INFLUX_BUCKET", "sample")
+INFLUX_BUCKET = os.environ.get("INFLUX_BUCKET", "sample")
 
 if not INFLUX_TOKEN:
     raise ValueError("No InfluxDB token set using INFLUX_TOKEN "
@@ -42,9 +41,10 @@ def root():
     return app.send_static_file('front.html')
 
 
+@cache.cached(timeout=600)
 @app.route("/BWSC2021.kml")
 def base_kml():
-    return flask.send_file("static/BWSC2021.kml",
+    return flask.render_template("BWSC2021.kml", bucket=INFLUX_BUCKET,
         mimetype="application/vnd.google-earth.kml+xml") # noqa
 
 
