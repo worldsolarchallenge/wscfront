@@ -4,6 +4,7 @@ import flask
 import flask_caching
 
 import subprocess
+import pprint
 
 app = flask.Flask(__name__)
 
@@ -38,6 +39,7 @@ if not INFLUX_ORG:
 
 @app.route("/")
 def root():
+    pprint.pprint(os.environ)
     return app.send_static_file('front.html')
 
 
@@ -50,6 +52,7 @@ def base_kml():
 @cache.cached(timeout=60, key_prefix="run_front")
 def run_front():
     # Run "Front" here.
+    app.logger.info(pprint.pformat(os.environ))
     return subprocess.call(['Front'])
 
 
