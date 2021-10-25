@@ -4,7 +4,6 @@ import flask
 import flask_caching
 
 import subprocess
-import pprint
 
 app = flask.Flask(__name__)
 
@@ -37,6 +36,7 @@ if not INFLUX_ORG:
                      "environment variable")
 
 
+@cache.cached(timeout=600)
 @app.route("/")
 def root():
     return app.send_static_file('front.html')
