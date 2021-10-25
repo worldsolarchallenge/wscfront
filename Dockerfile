@@ -34,5 +34,6 @@ RUN mkdir -p /app/results
 
 #ENTRYPOINT ["python"]
 #CMD ["python3", "app.py"]
+# FIXME: Comment to force a rebuild. Remove me. 
 
 CMD gunicorn --worker-class gevent --workers 1 --bind 0.0.0.0:5000 app:app --max-requests 10000 --timeout 5 --keep-alive 5 --log-level info
